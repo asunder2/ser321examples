@@ -228,7 +228,7 @@ class WebServer {
     try {
       // Fetch the JSON from GitHub
       json = fetchURL("https://api.github.com/" + query_pairs.get("query"));
-    } catch (IOException e) {
+    } catch (Exception e) {
       // The fetch from GitHub failed
       response = ("HTTP/1.1 500 Internal Server Error\\nContent-Type: text/html; charset=utf-8\\n\\nError: Failed to fetch data from GitHub.").getBytes();
       return response;
@@ -255,6 +255,7 @@ class WebServer {
     // The query parameter is missing
     response = ("HTTP/1.1 400 Bad Request\\nContent-Type: text/html; charset=utf-8\\n\\nError: The query parameter is missing.").getBytes();
   }
+
 
         } else {
           // if the request is not recognized at all
