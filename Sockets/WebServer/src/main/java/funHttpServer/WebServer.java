@@ -224,36 +224,38 @@ class WebServer {
 
   // Check if the query parameter is present
   if (query_pairs.containsKey("query")) {
+    String json = "";
     try {
       // Fetch the JSON from GitHub
-      String json = fetchURL("https://api.github.com/" + query_pairs.get("query"));
-
-      // Split the JSON into separate repo strings
-      String[] repos = json.split("\\},\\{");
-
-      // Loop through each repo string
-      for (String repo : repos) {
-        // Find the full_name, id, and owner login in the repo string
-        String fullName = repo.split("\"full_name\":\"")[1].split("\"")[0];
-        int id = Integer.parseInt(repo.split("\"id\":")[1].split(",")[0]);
-        String ownerLogin = repo.split("\"login\":\"")[1].split("\"")[0];
-
-        // Add the repo info to the response
-        builder.append("Repo: " + fullName + ", ID: " + id + ", Owner: " + ownerLogin + "\\n");
-      }
-
-      // Generate a successful response
-      builder.insert(0, "HTTP/1.1 200 OK\\nContent-Type: text/html; charset=utf-8\\n\\n");
-      response = builder.toString().getBytes();
-
+      json = fetchURL("https://api.github.com/" + query_pairs.get("query"));
     } catch (IOException e) {
       // The fetch from GitHub failed
       response = ("HTTP/1.1 500 Internal Server Error\\nContent-Type: text/html; charset=utf-8\\n\\nError: Failed to fetch data from GitHub.").getBytes();
+      return response;
     }
+
+    // Split the JSON into separate repo strings
+    String[] repos = json.split("\\},\\{");
+
+    // Loop through each repo string
+    for (String repo : repos) {
+      // Find the full_name, id, and owner login in the repo string
+      String fullName = repo.split("\"full_name\":\"")[1].split("\"")[0];
+      int id = Integer.parseInt(repo.split("\"id\":")[1].split(",")[0]);
+      String ownerLogin = repo.split("\"login\":\"")[1].split("\"")[0];
+
+      // Add the repo info to the response
+      builder.append("Repo: " + fullName + ", ID: " + id + ", Owner: " + ownerLogin + "\\n");
+    }
+
+    // Generate a successful response
+    builder.insert(0, "HTTP/1.1 200 OK\\nContent-Type: text/html; charset=utf-8\\n\\n");
+    response = builder.toString().getBytes();
   } else {
     // The query parameter is missing
     response = ("HTTP/1.1 400 Bad Request\\nContent-Type: text/html; charset=utf-8\\n\\nError: The query parameter is missing.").getBytes();
   }
+
         } else {
           // if the request is not recognized at all
 
