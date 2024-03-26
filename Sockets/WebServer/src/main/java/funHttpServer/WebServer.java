@@ -219,31 +219,33 @@ class WebServer {
           }
 
         } else if (request.contains("github?")) {
-            
           Map<String, String> query_pairs = new LinkedHashMap<String, String>();
           query_pairs = splitQuery(request.replace("github?", ""));
           if (query_pairs.containsKey("query")) {
             try {
               String json = fetchURL("https://api.github.com/" + query_pairs.get("query"));
-              JSONArray jsonArray = new JSONArray(json);
-              StringBuilder builder = new StringBuilder();
-              for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject repo = jsonArray.getJSONObject(i);
+              JsonReader jsonReader = Json.createReader(new StringReader(json));
+              JsonArray jsonArray = jsonReader.readArray();
+              jsonReader.close();
+              for (JsonValue value : jsonArray) {
+                JsonObject repo = value.asJsonObject();
                 String fullName = repo.getString("full_name");
                 int id = repo.getInt("id");
-                String ownerLogin = repo.getJSONObject("owner").getString("login");
+                String ownerLogin = repo.getJsonObject("owner").getString("login");
                 builder.append("Repo: " + fullName + ", ID: " + id + ", Owner: " + ownerLogin + "\\n");
               }
               builder.insert(0, "HTTP/1.1 200 OK\\nContent-Type: text/html; charset=utf-8\\n\\n");
               response = builder.toString().getBytes();
-            } catch (JSONException e) {
+            } catch (JsonException e) {
               response = ("HTTP/1.1 400 Bad Request\\nContent-Type: text/html; charset=utf-8\\n\\nError: The JSON response from GitHub is not valid.").getBytes();
             } catch (IOException e) {
               response = ("HTTP/1.1 500 Internal Server Error\\nContent-Type: text/html; charset=utf-8\\n\\nError: Failed to fetch data from GitHub.").getBytes();
             }
           } else {
+            // The query parameter is missing
             response = ("HTTP/1.1 400 Bad Request\\nContent-Type: text/html; charset=utf-8\\n\\nError: The query parameter is missing.").getBytes();
           }
+
 
         } else {
           // if the request is not recognized at all
