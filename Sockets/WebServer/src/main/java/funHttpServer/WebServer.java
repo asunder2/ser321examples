@@ -219,7 +219,6 @@ class WebServer {
           }
 
         } else if (request.contains("github?")) {
-          else if (request.contains("github?")) {
   Map<String, String> query_pairs = new LinkedHashMap<String, String>();
   query_pairs = splitQuery(request.replace("github?", ""));
 
@@ -255,8 +254,6 @@ class WebServer {
     // The query parameter is missing
     response = ("HTTP/1.1 400 Bad Request\\nContent-Type: text/html; charset=utf-8\\n\\nError: The query parameter is missing.").getBytes();
   }
-}
-
         } else {
           // if the request is not recognized at all
 
